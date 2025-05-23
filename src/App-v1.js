@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,62 +50,19 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = "7010e9cc";
-
 export default function App() {
-  const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const tempQuery = "interstellar";
-
-  useEffect(
-    function () {
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-          );
-
-          if (!res.ok)
-            throw new Error("Something went wrong with fetch movies");
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Movie not found");
-          setMovies(data.Search);
-          setIsLoading(false);
-        } catch (err) {
-          console.log(err.message);
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (!query.length) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-      fetchMovies();
-    },
-    [query]
-  );
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
       <NavBar>
-        <Search query={query} setQuery={setQuery} />
+        <Search />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
-          {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
-          {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
-          {error && <ErrorMessage message={error} />}
+          <MovieList movies={movies} />
         </Box>
         <Box>
           <>
@@ -115,18 +72,6 @@ export default function App() {
         </Box>
       </Main>
     </>
-  );
-}
-
-function Loader() {
-  return <p className="loader">Loading...</p>;
-}
-
-function ErrorMessage({ message }) {
-  return (
-    <p className="error">
-      <span>❌</span> {message}
-    </p>
   );
 }
 
@@ -145,10 +90,11 @@ function Logo() {
       <span role="img">🍿</span>
       <h1>usePopcorn</h1>
     </div>
-  );
+  )
 }
 
-function Search({ query, setQuery }) {
+function Search() {
+  const [query, setQuery] = useState("");
   return (
     <input
       className="search"
@@ -157,7 +103,7 @@ function Search({ query, setQuery }) {
       value={query}
       onChange={(e) => setQuery(e.target.value)}
     />
-  );
+  )
 }
 
 function NumResults({ movies }) {
@@ -165,23 +111,34 @@ function NumResults({ movies }) {
     <p className="num-results">
       Found <strong>{movies.length}</strong> results
     </p>
-  );
+  )
 }
 
 function Main({ children }) {
-  return <main className="main">{children}</main>;
+
+  return (
+    <main className="main">
+      {children}
+    </main>
+  )
 }
+
 
 function Box({ children }) {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="box">
-      <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
+      <button
+        className="btn-toggle"
+        onClick={() => setIsOpen((open) => !open)}
+      >
         {isOpen ? "–" : "+"}
       </button>
-      {isOpen && children}
+      {isOpen && (
+        children
+      )}
     </div>
-  );
+  )
 }
 
 /*
@@ -209,13 +166,14 @@ function WatchedBox() {
 }
 */
 function MovieList({ movies }) {
+
   return (
     <ul className="list">
       {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
-  );
+  )
 }
 
 function Movie({ movie }) {
@@ -230,7 +188,7 @@ function Movie({ movie }) {
         </p>
       </div>
     </li>
-  );
+  )
 }
 
 function WatchedSummary({ watched }) {
@@ -259,7 +217,7 @@ function WatchedSummary({ watched }) {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
 function WatchedMovieList({ watched }) {
@@ -269,7 +227,7 @@ function WatchedMovieList({ watched }) {
         <WatchedMovie movie={movie} key={movie.imdbID} />
       ))}
     </ul>
-  );
+  )
 }
 
 function WatchedMovie({ movie }) {
@@ -292,5 +250,5 @@ function WatchedMovie({ movie }) {
         </p>
       </div>
     </li>
-  );
+  )
 }
